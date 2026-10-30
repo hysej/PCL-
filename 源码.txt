@@ -1,0 +1,59 @@
+@echo off
+title PCL2 内存优化守护脚本
+color 0a
+
+ 设置 PCL2 的安装路径，请根据实际情况修改
+set PCL_PATH=E我的世界启动器PCL2Plain Craft Launcher 2.exe
+if not %1==minimized start min cmd c %~f0 minimized & exitb
+
+ 检查文件是否存在
+if not exist %PCL_PATH% (
+    echo [错误] 找不到 PCL2 启动器 %PCL_PATH%
+    echo 请检查脚本中的路径设置是否正确。
+    pause
+    exit b
+)
+
+echo ========================================
+echo   PCL2 内存优化守护脚本已启动
+echo   正在监控程序状态...
+echo ========================================
+echo.
+
+ 第一步：首次启动 PCL2
+echo [%time%] 正在首次启动 PCL2...
+start  min %PCL_PATH%
+
+ 等待 15 秒让程序充分初始化
+timeout t 15 nul
+
+loop
+ 清理屏幕上的多余信息，保持界面整洁
+cls
+echo ========================================
+echo   PCL2 内存优化守护脚本运行中
+echo   上次检查时间 %time%
+echo ========================================
+echo.
+
+ 检查 PCL2 进程是否存在
+ tasklist 查找进程，find 确认是否找到
+tasklist fi imagename eq Plain Craft Launcher 2.exe 2NUL  find I N Plain Craft Launcher 2.exeNUL
+
+if %ERRORLEVEL%==0 (
+     如果进程存在 (ERRORLEVEL 为 0)
+    echo [状态] PCL2 正在正常运行中。
+    echo [操作] 无需操作，等待下次检查...
+) else (
+     如果进程不存在
+    echo [警告] 未检测到 PCL2 进程！
+    echo [操作] 正在尝试重新启动并执行内存优化...
+    start  %PCL_PATH% --memory
+    echo [提示] 已发送启动命令。
+)
+
+echo.
+echo 下一次检查将在 120秒后进行...
+echo (按 Ctrl+C 可停止脚本)
+timeout t 120 nul
+goto loop
